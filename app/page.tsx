@@ -111,46 +111,13 @@ export default function Home() {
     setWinner(null);
   };
 
-  // Create money bills for the animation
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    
-    const moneyContainer = document.getElementById('money-container');
-    if (!moneyContainer) return;
-    
-    // Clear existing bills
-    moneyContainer.innerHTML = '';
-    
-    // Create new bills
-    const numberOfBills = 50;
-    for (let i = 0; i < numberOfBills; i++) {
-      createMoneyBill(moneyContainer);
-    }
-  }, []);
 
-  const createMoneyBill = (container: HTMLElement) => {
-    const bill = document.createElement('div');
-    bill.className = 'money-bill';
-    
-    // Randomize position, delay, and duration
-    const leftPos = Math.random() * 100;
-    const delay = Math.random() * 10;
-    const duration = Math.random() * 10 + 5;
-    const rotation = Math.random() * 360;
-    
-    bill.style.left = `${leftPos}%`;
-    bill.style.animationDelay = `${delay}s`;
-    bill.style.animationDuration = `${duration}s`;
-    bill.style.transform = `rotate(${rotation}deg)`;
-    
-    container.appendChild(bill);
-  };
+
+
 
   return (
     <>
-      {/* Money rain background */}
-      <div id="money-container" className="money-container fixed top-0 left-0 w-full h-full pointer-events-none z-0"></div>
-      
+
       {/* Main content */}
       <div className="relative z-10 items-center justify-center flex flex-col">
        <p className="text-7xl font-bold text-center gold-text animate-shimmer mb-8">777</p>
@@ -170,7 +137,7 @@ export default function Home() {
             <input
               type="text"
               placeholder="Oyuncu Adı"
-              className="border p-2 rounded bg-white/50 backdrop-blur-md bg-opacity-50 text-white"
+              className="border p-2 rounded bg-white/70 backdrop-blur-md bg-opacity-50 text-black"
               value={playerName}
               onChange={(e) => setPlayerName(e.target.value)}
             />
@@ -181,13 +148,13 @@ export default function Home() {
                 min="1"
                 max="50"
                 placeholder="Sayı Ekle (1-50)"
-                className="border p-2 rounded w-full bg-white/50 backdrop-blur-md bg-opacity-50 text-white"
+                className="border p-2 rounded w-full bg-white/70 backdrop-blur-md bg-opacity-50 text-black"
                 value={numberInput}
                 onChange={(e) => setNumberInput(e.target.value)}
               />
               <button
                 onClick={handleNumberInput}
-                className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
+                className="bg-blue-500/70 text-white px-4 py-2 rounded hover:bg-blue-600/70 transition-colors"
               >
                 Sayı Ekle
               </button>
@@ -199,7 +166,7 @@ export default function Home() {
             
             <button
               onClick={addPlayer}
-              className="mt-2 bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition-colors"
+              className="mt-2 bg-green-500/70 text-white px-4 py-2 rounded hover:bg-green-600/70 transition-colors"
             >
               Oyuncu Ekle
             </button>
@@ -244,8 +211,8 @@ export default function Home() {
                 type="number"
                 min="1"
                 max="90"
-                placeholder="Çıkmış sayıyı girin (1-90)"
-                className="border p-2 rounded w-full"
+                placeholder="Çıkmış sayıyı girin (1-50)"
+                className="border p-2 rounded w-full bg-white/70 backdrop-blur-md bg-opacity-50 text-black"
                 value={drawnNumberInput}
                 onChange={(e) => setDrawnNumberInput(e.target.value)}
                 disabled={winner !== null}
@@ -255,8 +222,8 @@ export default function Home() {
                 disabled={players.length === 0 || winner !== null}
                 className={`px-4 py-2 rounded ${
                   players.length === 0 || winner !== null
-                    ? 'bg-gray-300 cursor-not-allowed'
-                    : 'bg-blue-500 text-white hover:bg-blue-600 transition-colors'
+                    ? 'bg-gray-300/50 cursor-not-allowed text-white'
+                    : 'bg-blue-500/50 text-white hover:bg-blue-600/50 transition-colors text-w'
                 }`}
               >
                 Sayıyı Çek
