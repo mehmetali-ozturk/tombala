@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 
 export default function Home() {
   const [players, setPlayers] = useState<{ id: number, name: string, numbers: number[], markedNumbers: number[] }[]>([]);
