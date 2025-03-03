@@ -1,101 +1,291 @@
-import Image from "next/image";
+'use client'
+
+import { useState, useEffect } from 'react';
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  const [players, setPlayers] = useState<{ id: number, name: string, numbers: number[], markedNumbers: number[] }[]>([]);
+  const [playerName, setPlayerName] = useState('');
+  const [playerNumbers, setPlayerNumbers] = useState<number[]>([]);
+  const [currentNumber, setCurrentNumber] = useState<number | null>(null);
+  const [drawnNumbers, setDrawnNumbers] = useState<number[]>([]);
+  const [winner, setWinner] = useState<string | null>(null);
+  const [numberInput, setNumberInput] = useState('');
+  const [drawnNumberInput, setDrawnNumberInput] = useState('');
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
+  // Add a player with their numbers
+  const addPlayer = () => {
+    if (playerName.trim() === '') {
+      alert('Please enter a player name');
+      return;
+    }
+
+    if (playerNumbers.length !== 5) {
+      alert('Please enter exactly 5 numbers');
+      return;
+    }
+
+    const newPlayer = {
+      id: Date.now(),
+      name: playerName,
+      numbers: playerNumbers,
+      markedNumbers: []
+    };
+
+    setPlayers([...players, newPlayer]);
+    setPlayerName('');
+    setPlayerNumbers([]);
+    setNumberInput('');
+  };
+
+  // Handle player number input
+  const handleNumberInput = () => {
+    const num = parseInt(numberInput);
+    if (isNaN(num) || num < 1 || num > 90) {
+      alert('Please enter a valid number between 1 and 90');
+      return;
+    }
+
+    if (playerNumbers.includes(num)) {
+      alert('This number is already added');
+      return;
+    }
+
+    if (playerNumbers.length >= 5) {
+      alert('You can only select 5 numbers');
+      return;
+    }
+
+    setPlayerNumbers([...playerNumbers, num]);
+    setNumberInput('');
+  };
+
+  // Manually enter a drawn number
+  const handleDrawnNumberInput = () => {
+    const num = parseInt(drawnNumberInput);
+    if (isNaN(num) || num < 1 || num > 90) {
+      alert('Please enter a valid number between 1 and 90');
+      return;
+    }
+
+    if (drawnNumbers.includes(num)) {
+      alert('This number has already been drawn');
+      return;
+    }
+
+    setCurrentNumber(num);
+    setDrawnNumbers([...drawnNumbers, num]);
+
+    // Mark the number for each player if they have it
+    const updatedPlayers = players.map(player => {
+      if (player.numbers.includes(num)) {
+        return {
+          ...player,
+          markedNumbers: [...player.markedNumbers, num]
+        };
+      }
+      return player;
+    });
+
+    setPlayers(updatedPlayers);
+
+    // Check for winner(s)
+    updatedPlayers.forEach(player => {
+      if (player.markedNumbers.length === 5) {
+        setWinner(player.name);
+      }
+    });
+
+    setDrawnNumberInput('');
+  };
+
+  // Remove a player
+  const removePlayer = (id: number) => {
+    setPlayers(players.filter(player => player.id !== id));
+  };
+
+  // Reset the game
+  const resetGame = () => {
+    setPlayers([]);
+    setCurrentNumber(null);
+    setDrawnNumbers([]);
+    setWinner(null);
+  };
+
+  // Create money bills for the animation
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    
+    const moneyContainer = document.getElementById('money-container');
+    if (!moneyContainer) return;
+    
+    // Clear existing bills
+    moneyContainer.innerHTML = '';
+    
+    // Create new bills
+    const numberOfBills = 50;
+    for (let i = 0; i < numberOfBills; i++) {
+      createMoneyBill(moneyContainer);
+    }
+  }, []);
+
+  const createMoneyBill = (container: HTMLElement) => {
+    const bill = document.createElement('div');
+    bill.className = 'money-bill';
+    
+    // Randomize position, delay, and duration
+    const leftPos = Math.random() * 100;
+    const delay = Math.random() * 10;
+    const duration = Math.random() * 10 + 5;
+    const rotation = Math.random() * 360;
+    
+    bill.style.left = `${leftPos}%`;
+    bill.style.animationDelay = `${delay}s`;
+    bill.style.animationDuration = `${duration}s`;
+    bill.style.transform = `rotate(${rotation}deg)`;
+    
+    container.appendChild(bill);
+  };
+
+  return (
+    <>
+      {/* Money rain background */}
+      <div id="money-container" className="money-container fixed top-0 left-0 w-full h-full pointer-events-none z-0"></div>
+      
+      {/* Main content */}
+      <div className="relative z-10 items-center justify-center flex flex-col">
+       <p className="text-7xl font-bold text-center gold-text animate-shimmer mb-8">777</p>
+
+        {winner && (
+          <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4 w-full max-w-3xl backdrop-blur-md">
+            <p className="text-xl font-bold">Kazanan: {winner} 🎉</p>
+            <button onClick={resetGame} className="mt-2 bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition-colors">
+              Tekrar Oyna
+            </button>
+          </div>
+        )}
+
+        <div className="w-full max-w-3xl p-4 bg-white rounded-lg shadow-lg backdrop-blur-md bg-opacity-10 mb-4 border-2 border-black">
+          <h2 className="text-xl font-bold mb-4 text-white">Oyuncu Ekle</h2>
+          <div className="flex flex-col gap-2">
+            <input
+              type="text"
+              placeholder="Oyuncu Adı"
+              className="border p-2 rounded bg-white/50 backdrop-blur-md bg-opacity-50 text-white"
+              value={playerName}
+              onChange={(e) => setPlayerName(e.target.value)}
             />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+            
+            <div className="flex gap-2 items-center">
+              <input
+                type="number"
+                min="1"
+                max="50"
+                placeholder="Sayı Ekle (1-50)"
+                className="border p-2 rounded w-full bg-white/50 backdrop-blur-md bg-opacity-50 text-white"
+                value={numberInput}
+                onChange={(e) => setNumberInput(e.target.value)}
+              />
+              <button
+                onClick={handleNumberInput}
+                className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
+              >
+                Sayı Ekle
+              </button>
+            </div>
+            
+            <div className="mt-2 text-white">
+              <p>Seçilmiş Sayılar: <span className="font-bold">{playerNumbers.join(', ')}</span></p>
+            </div>
+            
+            <button
+              onClick={addPlayer}
+              className="mt-2 bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition-colors"
+            >
+              Oyuncu Ekle
+            </button>
+          </div>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+
+        <div className="w-full max-w-3xl p-4 bg-white rounded-lg shadow-lg backdrop-blur-md bg-opacity-10 mb-4 border-2 border-black">
+          <h2 className="text-xl font-bold mb-2 text-white drop-shadow-lg">Oyuncular</h2>
+          {players.length === 0 ? (
+            <p className="bg-white p-4 rounded-lg shadow-lg bg-opacity-10 text-white">Henüz oyuncu yok! Oynamak için oyuncu ekle.</p>
+          ) : (
+            <div className="space-y-4 ">
+              {players.map((player) => (
+                <div key={player.id} className="border p-4 rounded-lg bg-white shadow-lg bg-opacity-20">
+                  <div className="flex justify-between items-center">
+                    <h3 className="font-bold">{player.name}</h3>
+                    <button
+                      onClick={() => removePlayer(player.id)}
+                      className="text-red-500 hover:text-red-600 transition-colors"
+                    >
+                      Kaldır
+                    </button>
+                  </div>
+                  <div className="mt-2">
+                    <p>Sayılar: <span className="font-medium">{player.numbers.join(', ')}</span></p>
+                    <p>
+                      İşaretli Sayılar: 
+                      <span className="text-green-600 font-semibold"> {player.markedNumbers.join(', ')}</span>
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div className="w-full max-w-3xl p-4 bg-white rounded-lg shadow-lg backdrop-blur-md bg-opacity-10 mb-4 border-2 border-black">
+          <h2 className="text-xl font-bold mb-2 text-white drop-shadow-lg ">Oyun Kontrolleri</h2>
+          <div className="flex flex-col gap-4 bg-white p-4 rounded-lg shadow-lg bg-opacity-10">
+            <div className="flex gap-2 items-center">
+              <input
+                type="number"
+                min="1"
+                max="90"
+                placeholder="Çıkmış sayıyı girin (1-90)"
+                className="border p-2 rounded w-full"
+                value={drawnNumberInput}
+                onChange={(e) => setDrawnNumberInput(e.target.value)}
+                disabled={winner !== null}
+              />
+              <button
+                onClick={handleDrawnNumberInput}
+                disabled={players.length === 0 || winner !== null}
+                className={`px-4 py-2 rounded ${
+                  players.length === 0 || winner !== null
+                    ? 'bg-gray-300 cursor-not-allowed'
+                    : 'bg-blue-500 text-white hover:bg-blue-600 transition-colors'
+                }`}
+              >
+                Sayıyı Çek
+              </button>
+            </div>
+
+            {currentNumber && (
+              <div className="text-center p-4 bg-yellow-100 rounded-lg border border-yellow-200   ">
+                <p className="text-lg">Şuanki Sayı:</p>
+                <p className="text-4xl font-bold">{currentNumber}</p>
+              </div>
+            )}
+
+            <div>
+              <h3 className="font-bold text-white">Çekilmiş Sayılar:</h3>
+              <div className="flex flex-wrap gap-2 mt-2">
+                {drawnNumbers.map((num) => (
+                  <span
+                    key={num}
+                    className="inline-block w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center text-sm"
+                  >
+                    {num}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </>
   );
 }
