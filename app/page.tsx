@@ -332,7 +332,14 @@ export default function Home() {
               </div>
             ) : (
               <div className="space-y-3 max-h-[600px] overflow-y-auto pr-2">
-                {players.map((player) => {
+                {[...players]
+                  .sort((a, b) => {
+                    // En az kalan sayısı olan (en çok işaretlenen) üstte
+                    const remainingA = a.numbers.length - a.markedNumbers.length;
+                    const remainingB = b.numbers.length - b.markedNumbers.length;
+                    return remainingA - remainingB;
+                  })
+                  .map((player, index) => {
                   const remainingCount = player.numbers.length - player.markedNumbers.length;
                   const isWinner = remainingCount === 0;
                   return (
@@ -347,6 +354,7 @@ export default function Home() {
                       <div className="flex justify-between items-start mb-3">
                         <div>
                           <h3 className="font-bold text-lg text-white flex items-center gap-2">
+                            <span className="bg-white/20 px-2 py-0.5 rounded-full text-xs mr-1">#{index + 1}</span>
                             {player.name}
                             {isWinner && <span className="text-xl">🏆</span>}
                           </h3>
