@@ -13,16 +13,12 @@ export default function RootLayout({ children }: LayoutProps) {
         <title>777 Tombala</title>
         <meta name="description" content="777 Tombala Game" />
       </head>
-      <body className="min-h-screen overflow-x-hidden">
-        <div className="video-background fixed top-0 left-0 w-full h-full pointer-events-none z-0">
-          <iframe
-            className="w-full h-full"
-            src="https://www.youtube.com/embed/LaQjJKTDtf0?autoplay=1&mute=1&controls=0&loop=1&playlist=LaQjJKTDtf0&disablekb=1&fs=0&modestbranding=1&rel=0&showinfo=0"
-            allow="autoplay; encrypted-media"
-            allowFullScreen
-            frameBorder="0"
-            title="Money Rain Background"
-          ></iframe>
+      <body className="min-h-screen overflow-x-hidden bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+        {/* Animated background effects */}
+        <div className="fixed inset-0 z-0 overflow-hidden">
+          <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob"></div>
+          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-yellow-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000"></div>
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-pink-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-4000"></div>
         </div>
         <div className="relative z-10 min-h-screen">
           <main className="container mx-auto py-8 px-4">
